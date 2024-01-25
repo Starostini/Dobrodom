@@ -1,0 +1,12 @@
+export const ADMIN_ROUTE = "/admin";
+export const LOGIN_ROUTE = "/login";
+export const REGISTRATION_ROUTE = "/registration";
+export const HOME_ROUTE = "/";
+export const BASKET_ROUTE = "/basket";
+export const PET_ROUTE = "/pet";
+export const PETS_ROUTE = "/pets";
+export const GRADUATES_ROUTE = "/graduates";
+export const PROJECTS_ROUTE = "/projects";
+export const CHARITY_ROUTE = "/charity";
+export const CONTACTS_ROUTE = "/contacts";
+export const ABOUT_ROUTE = "/aboutus";
