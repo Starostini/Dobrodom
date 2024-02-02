@@ -46,15 +46,19 @@ const NavBar = observer(() => {
             </NavLink>
 
             {user.isAuth ? (
-              <NavLink className={"nav_btn"} to={ADMIN_ROUTE}>
-                Admin
-              </NavLink>
+              <>
+                <NavLink className={"nav_btn"} to={ADMIN_ROUTE}>
+                  Admin
+                </NavLink>
+                <NavLink
+                  className={"nav_btn"}
+                  onClick={() => user.setIsAuth(false)}
+                >
+                  Выход
+                </NavLink>
+              </>
             ) : (
-              <NavLink
-                className={"nav_btn"}
-                onClick={() => user.setIsAuth(true)}
-                // to={LOGIN_ROUTE}
-              >
+              <NavLink className={"nav_btn"} to={LOGIN_ROUTE}>
                 Войти
               </NavLink>
             )}
