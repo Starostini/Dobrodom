@@ -35,7 +35,7 @@ input {
 }
 
 input:focus {
-  box-shadow: 0 0 10px #19d4ca;
+  box-shadow: 0 0 10px #000000;
 }
 
 input :disabled {
@@ -54,6 +54,7 @@ input :disabled {
 .valid {
   display: flex;
   align-items: center;
+  width: 15px;
 }
 .icon_validation {
   width: 15px;
@@ -96,6 +97,7 @@ input :disabled {
 
 button {
   display: block;
+  margin-top: 10px;
   text-align: center;
   background-color: #10121150;
   color: rgba(255, 255, 255, 0.9);
@@ -119,5 +121,5 @@ button:hover {
 }
 
 button:active {
-  box-shadow: 0 0 10px #19d4ca;
+  box-shadow: 0 0 10px #131313;
 }

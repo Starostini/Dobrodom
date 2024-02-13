@@ -498,9 +498,10 @@ section {
   text-transform: uppercase;
   text-align: center;
 }
-.login-page {
+.login-page,
+.registration-page {
   position: fixed;
-  top: 40%;
+  top: 30%;
   left: 50%;
   transform: translate(-50%, 0);
   width: 30%;
@@ -513,7 +514,8 @@ section {
   }
 }
 
-.login-registration {
+.login-registration,
+.login-signin {
   margin-top: 5px;
 }
 .login-form {
@@ -531,14 +533,26 @@ section {
     }
   }
 }
+.success-msg {
+  position: fixed;
+  top: 30%;
+  background: white;
+  left: 50%;
+  width: 30%;
+  transform: translate(-50%, 0);
+  max-width: 300px;
+  border-radius: 5px;
+  padding: 15px;
+}
 
-.login-btn {
+.login-btn,
+.registration-btn {
   display: block;
   border: none;
   text-align: center;
   background-color: #10121150;
   margin: 5px auto;
-  width: 100px;
+  max-width: 200px;
   color: rgba(255, 255, 255, 0.9);
   font-size: 15px;
   padding: 5px 5px;
