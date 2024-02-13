@@ -2,29 +2,38 @@ import React from "react";
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // import "./registration.css";
+import Modal from "../ui/Modal";
 import registration from "./Registration.module.css";
 import validIconPng from "./icon/valid.png";
 import invalidIconPng from "./icon/invalid.png";
 // Validate user
-const USER_REGEX = /^[a-zA-Z][a-zA-Z0]{3,23}$/;
+const USER_REGEX = /^[А-Я][а-яА-Я0]{2,23}$/;
 const PWD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@./#$%&^*()-]).{8,24}$/;
 
-async function changePass(credentials) {
-  //   return fetch(`http://172.16.0.51${CHANGEPWD_URL}`, {
-  //     method: "POST",
-  //     body: JSON.stringify(credentials),
-  //   }).then((data) => data.json());
+const EMAIL_REGEX = /[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+/;
+
+async function regUser(credentials) {
+  return fetch(`http://89.111.152.183/api/create_user.php`, {
+    method: "POST",
+    body: JSON.stringify(credentials),
+  }).then((data) => data.json());
 }
 const Registration = () => {
   const userRef = useRef();
   const errRef = useRef();
 
-  const [user, setUser] = useState("");
+  const [firstname, setFirstname] = useState("");
   const [validName, setValidName] = useState(false);
-  const [userFocus, setUserFocus] = useState(false);
+  const [firstFocus, setFirstFocus] = useState(false);
 
-  const [oldpwd, setOldPwd] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [validSurname, setValidSurname] = useState(false);
+  const [secondFocus, setSecondFocus] = useState(false);
+
+  const [email, setEmail] = useState("");
+  const [validEmail, setValidEmail] = useState(false);
+  const [emailFocus, setEmailFocus] = useState(false);
 
   const [pwd, setPwd] = useState("");
   const [validPwd, setValidPwd] = useState(false);
@@ -36,16 +45,26 @@ const Registration = () => {
 
   const [errMsg, setErrMsg] = useState("");
   const [sucess, setSucess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   useEffect(() => {
     userRef.current.focus();
   }, []);
+  useEffect(() => {
+    const result = USER_REGEX.test(firstname);
+    setValidName(result);
+  }, [firstname]);
 
   useEffect(() => {
-    const result = USER_REGEX.test(user);
-    setValidName(result);
-  }, [user]);
+    const result = USER_REGEX.test(lastname);
+    setValidSurname(result);
+  }, [lastname]);
+
+  useEffect(() => {
+    const result = EMAIL_REGEX.test(email);
+    setValidEmail(result);
+  }, [email]);
 
   useEffect(() => {
     const result = PWD_REGEX.test(pwd);
@@ -56,28 +75,38 @@ const Registration = () => {
 
   useEffect(() => {
     setErrMsg("");
-  }, [user, pwd, matchPwd]);
+  }, [email, pwd, matchPwd]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const v1 = USER_REGEX.test(user);
+    const v1 = EMAIL_REGEX.test(email);
     const v2 = PWD_REGEX.test(pwd);
-    if (!v1 || !v2) {
-      setErrMsg("Invalid input");
+    const v3 = USER_REGEX.test(firstname);
+    const v4 = USER_REGEX.test(lastname);
+    if (!v1 || !v2 || !v3 || !v4) {
+      setErrMsg("Введены некоррентные данные");
       return;
     }
+    setLoading(true);
     try {
-      const response = await changePass({
-        login: user,
-        oldPass: btoa(oldpwd),
-        newPass: btoa(pwd),
+      const response = await regUser({
+        firstname: firstname,
+        lastname: lastname,
+        email: email,
+        password: pwd,
       });
-      if (response.status === "Success") {
+      debugger;
+      console.log(response.status);
+      if (response?.status === "200") {
+        setLoading(false);
         setSucess(true);
-        setUser("");
-        setOldPwd("");
+        setEmail("");
         setPwd("");
-      } else if (response.status === "Error 403") {
+        setFirstname("");
+        setLastname("");
+        setMatchPwd("");
+      } else if (response.status === "400") {
+        alert(`${response.message}`);
         // setErrMsg("Пароль не был изменен, проверьте введенные данные");
       } else if (response.status === "Error 404") {
         // setErrMsg("404 Пользователь не найден");
@@ -97,15 +126,25 @@ const Registration = () => {
     }
   };
 
-  return (
+  return loading ? (
+    <Modal active={loading} />
+  ) : (
     <>
       {sucess ? (
-        <div className="success-msg">
-          <h1>Успех!</h1>
-          <div className={registration.div}>
-            <Link className={registration.btn} to="/login">
-              Sign In
-            </Link>
+        <div
+          className="overflow"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate("/");
+          }}
+        >
+          <div className="success-msg">
+            <h1>Успех!</h1>
+            <div className={registration.div}>
+              <Link className="login-signin" to="/login">
+                Войти
+              </Link>
+            </div>
           </div>
         </div>
       ) : (
@@ -113,10 +152,15 @@ const Registration = () => {
           className="overflow"
           onClick={(e) => {
             e.stopPropagation();
-            navigate(-1);
+            navigate("/");
           }}
         >
-          <div className={registration.changepass}>
+          <div
+            className="registration-page"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             <p
               ref={errRef}
               className={errMsg ? registration.errmsg : registration.offscreen}
@@ -124,10 +168,61 @@ const Registration = () => {
             >
               {errMsg}
             </p>
-            <h1>Сменить пароль</h1>
+            <h1>Регистрация</h1>
             <form onSubmit={handleSubmit}>
-              <label htmlFor="username" className={registration.labels}>
-                Пользователь:
+              <label htmlFor="lastname" className={registration.labels}>
+                Фамилия:
+                <span
+                  className={
+                    validSurname ? registration.valid : registration.hide
+                  }
+                >
+                  <img
+                    src={validIconPng}
+                    className={registration.icon_validation}
+                    alt="Valid"
+                  />
+                </span>
+                <span
+                  className={
+                    validSurname || !lastname
+                      ? registration.hide
+                      : registration.invalid
+                  }
+                >
+                  <img
+                    src={invalidIconPng}
+                    className={registration.icon_validation}
+                    alt="Inalid"
+                  />
+                </span>
+              </label>
+              <input
+                type="text"
+                id="lastname"
+                ref={userRef}
+                autoComplete="off"
+                onChange={(e) => setLastname(e.target.value)}
+                required
+                aria-invalid={validSurname ? "false" : "true"}
+                aria-describedby="uidnote"
+                onFocus={() => setSecondFocus(true)}
+                onBlur={() => setSecondFocus(false)}
+              />
+              <p
+                id="uidnote"
+                className={
+                  secondFocus && lastname && !validSurname
+                    ? registration.instruction
+                    : registration.offscreen
+                }
+              >
+                Errorrrr
+                {/* Must begin with a letter.<br /> */}
+                {/* Letters,numbers,undercors,hyphens allower. */}
+              </p>
+              <label htmlFor="firstname" className={registration.labels}>
+                Имя:
                 <span
                   className={validName ? registration.valid : registration.hide}
                 >
@@ -139,7 +234,58 @@ const Registration = () => {
                 </span>
                 <span
                   className={
-                    validName || !user
+                    validName || !firstname
+                      ? registration.hide
+                      : registration.invalid
+                  }
+                >
+                  <img
+                    src={invalidIconPng}
+                    className={registration.icon_validation}
+                    alt="Inalid"
+                  />
+                </span>
+              </label>
+              <input
+                type="text"
+                id="firstname"
+                ref={userRef}
+                autoComplete="off"
+                onChange={(e) => setFirstname(e.target.value)}
+                required
+                aria-invalid={validEmail ? "false" : "true"}
+                aria-describedby="uidnote"
+                onFocus={() => setFirstFocus(true)}
+                onBlur={() => setFirstFocus(false)}
+              />
+              <p
+                id="uidnote"
+                className={
+                  firstFocus && firstname && !validName
+                    ? registration.instruction
+                    : registration.offscreen
+                }
+              >
+                Errorrrr
+                {/* Must begin with a letter.<br /> */}
+                {/* Letters,numbers,undercors,hyphens allower. */}
+              </p>
+              <label htmlFor="email" className={registration.labels}>
+                Почта:
+                <span
+                  className={
+                    validEmail ? registration.valid : registration.hide
+                  }
+                >
+                  <img
+                    src={validIconPng}
+                    className={registration.icon_validation}
+                    alt="Valid"
+                  />
+                </span>
+                <span
+                  className={
+                    validEmail || !email
                       ? registration.hide
                       : registration.invalid
                   }
@@ -153,50 +299,52 @@ const Registration = () => {
               </label>
 
               <input
-                type="text"
-                id="username"
+                type="email"
+                id="email"
                 ref={userRef}
                 autoComplete="off"
-                onChange={(e) => setUser(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 required
-                aria-invalid={validName ? "false" : "true"}
+                aria-invalid={validEmail ? "false" : "true"}
                 aria-describedby="uidnote"
-                onFocus={() => setUserFocus(true)}
-                onBlur={() => setUserFocus(false)}
+                onFocus={() => setEmailFocus(true)}
+                onBlur={() => setEmailFocus(false)}
               />
               <p
                 id="uidnote"
                 className={
-                  userFocus && user && !validName
+                  emailFocus && email && !validEmail
                     ? registration.instruction
                     : registration.offscreen
                 }
               >
-                Имя пользователя должно содержать от 4 до 24 знаков.
+                Введен невалидный адресс электронной почты
                 {/* Must begin with a letter.<br /> */}
                 {/* Letters,numbers,undercors,hyphens allower. */}
               </p>
 
               <label htmlFor="password" className={registration.labels}>
-                Новый пароль:
+                Пароль:
                 <span
                   className={validPwd ? registration.valid : registration.hide}
                 >
                   <img
                     src={validIconPng}
-                    className="icon-validation"
+                    className={registration.icon_validation}
                     alt="Valid"
                   />
                 </span>
                 <span
                   className={
-                    validPwd || !user ? registration.hide : registration.invalid
+                    validPwd || !email
+                      ? registration.hide
+                      : registration.invalid
                   }
                 >
                   <img
                     src={invalidIconPng}
                     className={registration.icon_validation}
-                    alt="Inalid"
+                    alt="Invalid"
                   />
                 </span>
               </label>
@@ -274,13 +422,16 @@ const Registration = () => {
                 <br />
               </p>
               <button
-                disabled={!validName || !validPwd || !validMatch ? true : false}
+                className="registration-btn"
+                disabled={
+                  !validEmail || !validPwd || !validMatch ? true : false
+                }
               >
-                Сменить пароль
+                Зарегистрироваться
               </button>
             </form>
             <div className={registration.div}>
-              <Link className={registration.btn} to="/login">
+              <Link className="login-signin" to="/login">
                 Войти
               </Link>
             </div>
