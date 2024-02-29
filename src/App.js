@@ -1,17 +1,12 @@
 import React from "react";
-import { BrowserRouter } from "react-router-dom";
-import AppRouter from "./components/AppRouter";
-import NavBar from "./components/NavBar";
-import Footer from "./components/Footer";
+import Routers from "./Routers/Routers";
 import style from "./style/app.scss";
 
 function App() {
   return (
-    <BrowserRouter>
-      <NavBar />
-      <AppRouter />
-      <Footer />
-    </BrowserRouter>
+    <main className="wrapper">
+      <Routers />
+    </main>
   );
 }
 

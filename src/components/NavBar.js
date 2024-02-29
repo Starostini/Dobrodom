@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { Context } from "..";
 import { NavLink } from "react-router-dom";
 import { observer } from "mobx-react-lite";
+//import useAuth from "../hooks/useAuth";
 import {
   ABOUT_ROUTE,
   ADMIN_ROUTE,
@@ -15,9 +16,11 @@ import {
 } from "../utils/consts";
 
 import HeaderTitle from "./HeaderTitle";
-
+import useAuth from "../hooks/useAuth";
+//const { auth, setAuth } = useAuth();
 const NavBar = observer(() => {
-  const { user } = useContext(Context);
+  const { auth, setAuth } = useAuth();
+  // auth.isAuth = true;
   return (
     <>
       <header className="header">
@@ -44,16 +47,12 @@ const NavBar = observer(() => {
             <NavLink className={"nav_btn"} to={ABOUT_ROUTE}>
               О нас
             </NavLink>
-
-            {user.isAuth ? (
+            {auth.isAuth && auth.roles === "ADMIN" ? (
               <>
                 <NavLink className={"nav_btn"} to={ADMIN_ROUTE}>
                   Admin
                 </NavLink>
-                <NavLink
-                  className={"nav_btn"}
-                  onClick={() => user.setIsAuth(false)}
-                >
+                <NavLink className={"nav_btn"} onClick={() => setAuth({})}>
                   Выход
                 </NavLink>
               </>

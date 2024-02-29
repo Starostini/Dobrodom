@@ -18,6 +18,7 @@ import {
   CHARITY_ROUTE,
   CONTACTS_ROUTE,
   ABOUT_ROUTE,
+  UNAUTORIZED_ROUTE,
 } from "./utils/consts";
 import Pets from "./pages/Pets";
 import Graduates from "./pages/Graduates";
@@ -25,6 +26,7 @@ import Projects from "./pages/Projects";
 import Charity from "./pages/Charity";
 import Contacts from "./pages/Contacts";
 import AboutUs from "./pages/AboutUs";
+import Unautorized from "./pages/Unautorized";
 
 export const authRoutes = [
   {
@@ -65,6 +67,10 @@ export const publicRoutes = [
   {
     path: PROJECTS_ROUTE,
     Component: <Projects />,
+  },
+  {
+    path: UNAUTORIZED_ROUTE,
+    Component: <Unautorized />,
   },
   {
     path: CHARITY_ROUTE,

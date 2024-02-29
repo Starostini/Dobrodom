@@ -10,3 +10,5 @@ export const PROJECTS_ROUTE = "/projects";
 export const CHARITY_ROUTE = "/charity";
 export const CONTACTS_ROUTE = "/contacts";
 export const ABOUT_ROUTE = "/aboutus";
+export const UNAUTORIZED_ROUTE = "/unautorized";
+export const PETS = "/configpets";

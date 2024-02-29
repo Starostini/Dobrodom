@@ -6,6 +6,7 @@ import Modal from "../ui/Modal";
 import registration from "./Registration.module.css";
 import validIconPng from "./icon/valid.png";
 import invalidIconPng from "./icon/invalid.png";
+import Success from "./components/Success";
 // Validate user
 const USER_REGEX = /^[А-Я][а-яА-Я0]{2,23}$/;
 const PWD_REGEX =
@@ -20,6 +21,8 @@ async function regUser(credentials) {
   }).then((data) => data.json());
 }
 const Registration = () => {
+  const navigate = useNavigate();
+
   const userRef = useRef();
   const errRef = useRef();
 
@@ -45,9 +48,10 @@ const Registration = () => {
 
   const [errMsg, setErrMsg] = useState("");
   const [sucess, setSucess] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [titleMsg, setTitleMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
   useEffect(() => {
     userRef.current.focus();
   }, []);
@@ -95,22 +99,33 @@ const Registration = () => {
         email: email,
         password: pwd,
       });
-      debugger;
       console.log(response.status);
       if (response?.status === "200") {
         setLoading(false);
+        setMsg(response.message);
+        setTitleMsg("Успех!");
         setSucess(true);
         setEmail("");
         setPwd("");
         setFirstname("");
         setLastname("");
         setMatchPwd("");
+        setTimeout(() => {
+          navigate("/login");
+        }, 3000);
       } else if (response.status === "400") {
-        alert(`${response.message}`);
+        setMsg(response.message);
+        setTitleMsg("Ошибка!");
+        setSucess(true);
+        //alert(`${response.message}`);
         // setErrMsg("Пароль не был изменен, проверьте введенные данные");
       } else if (response.status === "Error 404") {
+        setMsg(response.message);
+        setTitleMsg("Ошибка!");
         // setErrMsg("404 Пользователь не найден");
       } else if (response.status === "Error 415") {
+        setMsg(response.message);
+        setTitleMsg("Ошибка!");
         // setErrMsg("415 Логин или пароль указаны неверно");
       }
 
@@ -131,23 +146,22 @@ const Registration = () => {
   ) : (
     <>
       {sucess ? (
-        <div
-          className="overflow"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate("/");
-          }}
-        >
-          <div className="success-msg">
-            <h1>Успех!</h1>
-            <div className={registration.div}>
-              <Link className="login-signin" to="/login">
-                Войти
-              </Link>
-            </div>
-          </div>
-        </div>
+        <Success message={msg} titlemsg={titleMsg} />
       ) : (
+        // <div
+        //   className="overflow"
+        //   onClick={(e) => {
+        //     e.stopPropagation();
+        //     navigate("/");
+        //   }}
+        // >
+        //   <div className="success-msg">
+        //     <h1>Успех!</h1>
+        //     <div className={registration.div}>
+        //       Теперь вы можете авторизоваться на портале!
+        //     </div>
+        //   </div>
+        // </div>
         <div
           className="overflow"
           onClick={(e) => {

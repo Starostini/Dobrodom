@@ -1,22 +1,17 @@
-// import React, { createContext } from "react";
-import React, { StrictMode, createContext } from "react";
+import React, { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import { AuthProvider } from "./context/AuthProvider";
 import { BrowserRouter } from "react-router-dom";
-import UserStore from "./store/UserStore";
-import PetStore from "./store/PetStore";
-export const Context = createContext(null);
+import RequireAuth from "./RequiredAuth";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <Context.Provider
-      value={{
-        user: new UserStore(),
-        pet: new PetStore(),
-      }}
-    >
-      <App />
-    </Context.Provider>
-  </React.StrictMode>
+  <StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </BrowserRouter>
+  </StrictMode>
 );

@@ -26,6 +26,7 @@ form {
 input {
   outline: none;
   padding: 5px;
+  margin: 5px 0;
   border: none;
   border-radius: 5px 5px 0 0;
   background-color: transparent;
