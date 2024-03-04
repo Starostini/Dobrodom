@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import registration from "../Registration.module.css";
 const Success = ({ message, titlemsg }) => {
   const navigate = useNavigate();
+  debugger;
   return (
     <div
       className="overflow"

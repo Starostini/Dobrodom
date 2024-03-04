@@ -18,6 +18,13 @@ export async function getPetsList() {
   }).then((data) => data.json());
 }
 
+export async function getPetDetail(credentials) {
+  return fetch(`http://89.111.152.183/api/getPetDetail.php`, {
+    method: "POST",
+    body: JSON.stringify(credentials),
+  }).then((data) => data.json());
+}
+
 export async function sendNewPet(data) {
   return fetch(`http://89.111.152.183/api/addNewPet.php`, {
     method: "POST",

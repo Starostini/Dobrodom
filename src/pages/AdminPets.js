@@ -1,23 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { getPetsList, sendNewPet } from "../services/Request.services";
+import { getPetDetail, getPetsList } from "../services/Request.services";
 import adminStyle from "./Admin.module.css";
 import Modal from "../ui/Modal";
 import plus from "../img/icon/plus.png";
-import ok from "../img/icon/success.png";
-import cancel from "../img/icon/error.png";
+import FormComponent from "./components/FormComponent.js";
+import Success from "./components/Success";
+
 const AdminPets = () => {
   const [petList, setPetList] = useState({});
   const [loading, setLoading] = useState(true);
   const [addPetActive, setAddPatActive] = useState(false);
   const [message, setMessage] = useState("");
+  const [titleMessage, setTitleMessage] = useState("");
+  const [enableMessage, setEnableMessage] = useState(false);
+  const [data, setData] = useState({});
   useEffect(() => {
     async function getData() {
       try {
         const response = await getPetsList();
         if (response?.status === 200) {
           setLoading(false);
-          setPetList(response.data);
+          response.data === null ? setPetList([]) : setPetList(response.data);
+
           // debugger;
+        } else {
+          setLoading(false);
+          setMessage(response.message);
+          setTitleMessage(response.status);
+          setEnableMessage(true);
         }
       } catch (error) {
         setLoading(false);
@@ -31,14 +41,16 @@ const AdminPets = () => {
     e.preventDefault();
     setAddPatActive(true);
   }
-  const handleSendNewPet = async (e) => {
-    e.preventDefault();
-    const form = document.querySelector(".addPetForm");
-    const formData = new FormData(form);
+  const handleGetPetDetail = async (e) => {
+    const pet_id = e.target.parentNode.dataset.id;
     try {
-      const response = sendNewPet(formData);
+      const response = await getPetDetail({
+        id: pet_id,
+      });
+
       if (response.status === 200) {
-        debugger;
+        setData(response.data);
+        setAddPatActive(true);
       }
     } catch (error) {}
   };
@@ -46,77 +58,14 @@ const AdminPets = () => {
   return loading ? (
     <Modal active={loading} />
   ) : addPetActive ? (
+    <FormComponent
+      data={data}
+      addPetActive={addPetActive}
+      setAddPatActive={setAddPatActive}
+    />
+  ) : enableMessage ? (
     <>
-      <div className={adminStyle.addPetContainer}>
-        <h4 className={adminStyle.titleAddPet}>Добавить питомца</h4>
-        <form
-          encType="multipart/form-data"
-          className="addPetForm"
-          id="addPetForm"
-          onSubmit={(e) => handleSendNewPet(e)}
-        >
-          <label htmlFor="pet_name">Имя:</label>
-          <input name="pet_name" id="pet_name" type="text" />
-          <label htmlFor="gender_select">Пол:</label>
-          <select name="gender-select" id="gender-select">
-            <option value="">--Выберите пол--</option>
-            <option value="1">Мальчик</option>
-            <option value="0">Девочка</option>
-          </select>
-
-          <label htmlFor="pet_age">Возвраст:</label>
-          <input name="pet_age" id="pet_age" type="text" />
-          <label htmlFor="status-select">Статус:</label>
-          <select name="status-select" id="status-select">
-            <option value="">--Выберите статус--</option>
-            <option value="1">Да</option>
-            <option value="0">Нет</option>
-          </select>
-          <label htmlFor="inhome-select">Дом найден?:</label>
-          <select name="inhome-select" id="inhome-select">
-            <option value="">--Выберите статус--</option>
-            <option value="1">Дом найден!</option>
-            <option value="0">Дом не найден</option>
-          </select>
-          <div className={adminStyle.addPetPhotoContaier}>
-            <div>
-              <label htmlFor="pet_photo_before">Фото до:</label>
-              <input
-                name="pet_photo_before"
-                id="pet_photo_before"
-                type="file"
-              />
-            </div>
-            <div>
-              <label htmlFor="pet_photo">Фото после:</label>
-              <input name="pet_photo_after" id="pet_photo_after" type="file" />
-            </div>
-          </div>
-          <label htmlFor="pet-story">История питомца:</label>
-          <textarea name="pet-story" id="pet-story" />
-          <div className={adminStyle.addPetBtnPanel}>
-            <button
-              className={adminStyle.addPetBtn}
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                setAddPatActive(false);
-              }}
-            >
-              <img
-                className={`${adminStyle.addPetImg} ${adminStyle.addPetImgNok}`}
-                src={cancel}
-              />
-            </button>
-            <button className={adminStyle.addPetBtn} type="submit">
-              <img
-                className={`${adminStyle.addPetImg} ${adminStyle.addPetImgOk}`}
-                src={ok}
-              />
-            </button>
-          </div>
-        </form>
-      </div>
+      <Success message={message} titlemsg={titleMessage} />
     </>
   ) : (
     <>
@@ -126,6 +75,7 @@ const AdminPets = () => {
             className={adminStyle.plusImage}
             src={plus}
             onClick={(e) => {
+              setData({});
               addPet(e);
             }}
           />
@@ -145,7 +95,15 @@ const AdminPets = () => {
           <tbody>
             {petList.map((pet) => {
               return (
-                <tr key={pet.ID} className={adminStyle.currentpet}>
+                <tr
+                  key={pet.ID}
+                  className={adminStyle.currentpet}
+                  data-id={pet.ID}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleGetPetDetail(e);
+                  }}
+                >
                   <td>{pet.NAME}</td>
                   <td>{pet.GENDER ? "Мальчик" : "Девочка"}</td>
                   <td>{pet.AGE}</td>
